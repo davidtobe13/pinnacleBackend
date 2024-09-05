@@ -2,20 +2,51 @@
 const Vehicle = require('../models/vehicleModel');
 const House = require('../models/houseModel');
 
+// exports.getAllHousesAndVehicles = async (req, res) => {
+//     try {
+//       // Fetch houses and vehicles
+//       const houses = await House.find();
+//       const vehicles = await Vehicle.find();
+  
+//       // Combine both arrays
+//       const combined = [...houses, ...vehicles];
+  
+//       // Sort combined array by creation date (assuming `createdAt` field exists in both models)
+//       combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
+//       // Respond with the sorted combined array
+//       res.status(200).json({"message": `Fetched ${combined.length} data`, "data":combined});
+//     } catch (error) {
+//       console.error('Error fetching houses and vehicles:', error);
+//       res.status(500).json({ message: 'Error fetching houses and vehicles', error: error.message });
+//     }
+//   };
+
 exports.getAllHousesAndVehicles = async (req, res) => {
     try {
       // Fetch houses and vehicles
       const houses = await House.find();
       const vehicles = await Vehicle.find();
-  
+      
+      // Add entityType to each item
+      const housesWithType = houses.map(house => ({
+        ...house.toObject(), // Convert Mongoose document to plain object
+        entityType: 'house'
+      }));
+      
+      const vehiclesWithType = vehicles.map(vehicle => ({
+        ...vehicle.toObject(), // Convert Mongoose document to plain object
+        entityType: 'vehicle'
+      }));
+      
       // Combine both arrays
-      const combined = [...houses, ...vehicles];
-  
+      const combined = [...housesWithType, ...vehiclesWithType];
+      
       // Sort combined array by creation date (assuming `createdAt` field exists in both models)
       combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
+      
       // Respond with the sorted combined array
-      res.status(200).json({"message": `Fetched ${combined.length} data`, "data":combined});
+      res.status(200).json({ "message": `Fetched ${combined.length} data`, "data": combined });
     } catch (error) {
       console.error('Error fetching houses and vehicles:', error);
       res.status(500).json({ message: 'Error fetching houses and vehicles', error: error.message });
