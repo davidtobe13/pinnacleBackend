@@ -1,0 +1,394 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+// MongoDB Atlas Connection
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Cloudinary Storage Configuration
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'truck_images',
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// Vehicle Schema
+const vehicleSchema = new mongoose.Schema({
+  title: String,
+  price: Number,
+  mileage: String,
+  stock: String,
+  vin: String,
+  images: [String],
+  features: [String],
+  specs: {
+    engine: String,
+    driveType: String,
+    transmission: String,
+    color: String,
+    priorUse: String,
+  },
+  additionalSpecs: [{
+    category: String,
+    item: String,
+    value: String,
+  }],
+});
+
+const Vehicle = mongoose.model('Vehicle', vehicleSchema);
+
+// Upload Vehicle Route
+app.post('/api/vehicles', upload.array('images', 10), async (req, res) => {
+  try {
+    const {
+      title,
+      price,
+      mileage,
+      stock,
+      vin,
+      features,
+      specs,
+      additionalSpecs,
+    } = req.body;
+
+    const imageUrls = req.files.map(file => file.path);
+
+    const newVehicle = new Vehicle({
+      title,
+      price,
+      mileage,
+      stock,
+      vin,
+      images: imageUrls,
+      features: JSON.parse(features),
+      specs: JSON.parse(specs),
+      additionalSpecs: JSON.parse(additionalSpecs),
+    });
+
+    await newVehicle.save();
+
+    res.status(201).json({ message: 'Vehicle uploaded successfully', vehicle: newVehicle });
+  } catch (error) {
+    console.error('Error uploading vehicle:', error);
+    res.status(500).json({ message: 'Error uploading vehicle', error: error.message });
+  }
+});
+
+// Get All Vehicles Route
+app.get('/api/vehicles', async (req, res) => {
+  try {
+    const vehicles = await Vehicle.find();
+    res.status(200).json(vehicles);
+  } catch (error) {
+    console.error('Error fetching vehicles:', error);
+    res.status(500).json({ message: 'Error fetching vehicles', error: error.message });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// File: server.js
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const vehicleRoutes = require('./routes/vehicleRoutes');
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+app.use('/api/vehicles', vehicleRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// File: models/vehicleModel.js
+const mongoose = require('mongoose');
+
+const vehicleSchema = new mongoose.Schema({
+  title: String,
+  price: Number,
+  mileage: String,
+  stock: String,
+  vin: String,
+  images: [String],
+  features: [String],
+  specs: {
+    engine: String,
+    driveType: String,
+    transmission: String,
+    color: String,
+    priorUse: String,
+  },
+  additionalSpecs: [{
+    category: String,
+    item: String,
+    value: String,
+  }],
+});
+
+module.exports = mongoose.model('Vehicle', vehicleSchema);
+
+// File: controllers/vehicleController.js
+const Vehicle = require('../models/vehicleModel');
+const cloudinary = require('../config/cloudinary');
+
+exports.uploadVehicle = async (req, res) => {
+  try {
+    const {
+      title,
+      price,
+      mileage,
+      stock,
+      vin,
+      features,
+      specs,
+      additionalSpecs,
+    } = req.body;
+
+    const imageUrls = req.files.map(file => file.path);
+
+    const newVehicle = new Vehicle({
+      title,
+      price,
+      mileage,
+      stock,
+      vin,
+      images: imageUrls,
+      features: JSON.parse(features),
+      specs: JSON.parse(specs),
+      additionalSpecs: JSON.parse(additionalSpecs),
+    });
+
+    await newVehicle.save();
+
+    res.status(201).json({ message: 'Vehicle uploaded successfully', vehicle: newVehicle });
+  } catch (error) {
+    console.error('Error uploading vehicle:', error);
+    res.status(500).json({ message: 'Error uploading vehicle', error: error.message });
+  }
+};
+
+exports.getAllVehicles = async (req, res) => {
+  try {
+    const vehicles = await Vehicle.find();
+    res.status(200).json(vehicles);
+  } catch (error) {
+    console.error('Error fetching vehicles:', error);
+    res.status(500).json({ message: 'Error fetching vehicles', error: error.message });
+  }
+};
+
+// File: routes/vehicleRoutes.js
+const express = require('express');
+const router = express.Router();
+const vehicleController = require('../controllers/vehicleController');
+const upload = require('../middleware/upload');
+
+router.post('/', upload.array('images', 10), vehicleController.uploadVehicle);
+router.get('/', vehicleController.getAllVehicles);
+
+module.exports = router;
+
+// File: config/cloudinary.js
+const cloudinary = require('cloudinary').v2;
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+module.exports = cloudinary;
+
+// File: middleware/upload.js
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'truck_images',
+    allowed_formats: ['jpg', 'png', 'jpeg'],
+  },
+});
+
+const upload = multer({ storage: storage });
+
+module.exports = upload;
+
+
+
+
+
+
+
+
+
+
+// File: server.js
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const vehicleRoutes = require('./routes/vehicleRoutes');
+const houseRoutes = require('./routes/houseRoutes');
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/houses', houseRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// File: models/vehicleModel.js
+// (Keep this file as is from the previous example)
+
+// File: models/houseModel.js
+const mongoose = require('mongoose');
+
+const houseSchema = new mongoose.Schema({
+  title: String,
+  price: Number,
+  beds: Number,
+  baths: Number,
+  size: String,
+  yearBuilt: Number,
+  address: String,
+  images: [String],
+  features: [String],
+  specs: mongoose.Schema.Types.Mixed,
+});
+
+module.exports = mongoose.model('House', houseSchema);
+
+// File: controllers/vehicleController.js
+// (Keep this file as is from the previous example)
+
+// File: controllers/houseController.js
+const House = require('../models/houseModel');
+const cloudinary = require('../config/cloudinary');
+
+exports.uploadHouse = async (req, res) => {
+  try {
+    const {
+      title,
+      price,
+      beds,
+      baths,
+      size,
+      yearBuilt,
+      address,
+      features,
+      specs,
+    } = req.body;
+
+    const imageUrls = req.files.map(file => file.path);
+
+    const newHouse = new House({
+      title,
+      price,
+      beds,
+      baths,
+      size,
+      yearBuilt,
+      address,
+      images: imageUrls,
+      features: JSON.parse(features),
+      specs: JSON.parse(specs),
+    });
+
+    await newHouse.save();
+
+    res.status(201).json({ message: 'House uploaded successfully', house: newHouse });
+  } catch (error) {
+    console.error('Error uploading house:', error);
+    res.status(500).json({ message: 'Error uploading house', error: error.message });
+  }
+};
+
+exports.getAllHouses = async (req, res) => {
+  try {
+    const houses = await House.find();
+    res.status(200).json(houses);
+  } catch (error) {
+    console.error('Error fetching houses:', error);
+    res.status(500).json({ message: 'Error fetching houses', error: error.message });
+  }
+};
+
+// File: routes/vehicleRoutes.js
+// (Keep this file as is from the previous example)
+
+// File: routes/houseRoutes.js
+const express = require('express');
+const router = express.Router();
+const houseController = require('../controllers/houseController');
+const upload = require('../middleware/upload');
+
+router.post('/', upload.array('images', 10), houseController.uploadHouse);
+router.get('/', houseController.getAllHouses);
+
+module.exports = router;
+
+// File: config/cloudinary.js
+// (Keep this file as is from the previous example)
+
+// File: middleware/upload.js
+// (Keep this file as is from the previous example)
