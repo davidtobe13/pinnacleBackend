@@ -85,6 +85,14 @@ const vehicleSchema = new mongoose.Schema({
       type: String,
       trim: true, // Removes leading and trailing spaces
     },
+    horsepower: {
+      type: String,
+      trim: true, // Removes leading and trailing spaces
+    },
+    fuelCap: {
+      type: String,
+      trim: true, // Removes leading and trailing spaces
+    },
   },
   additionalSpecs: [{
     category: {
