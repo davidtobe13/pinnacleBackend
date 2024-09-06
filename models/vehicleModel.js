@@ -37,6 +37,12 @@ const vehicleSchema = new mongoose.Schema({
     required: true, // Price is required
     min: 0, // Price should be a non-negative number
   },
+  makeYear: {
+    type: Number,
+    required: true,
+    min: 1800, // Assumes houses are not older than 1800
+    max: new Date().getFullYear(), // Ensures the year is not in the future
+  },
   mileage: {
     type: String,
     required: true, // Mileage is required

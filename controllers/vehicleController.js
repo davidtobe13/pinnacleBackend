@@ -56,6 +56,7 @@ exports.uploadVehicle = async (req, res) => {
     const {
       title,
       price,
+      makeYear,
       mileage,
       stock,
       vin,
@@ -134,6 +135,7 @@ exports.uploadVehicle = async (req, res) => {
     const newVehicle = new Vehicle({
       title,
       price,
+      makeYear,
       mileage,
       stock,
       vin,
