@@ -69,10 +69,12 @@ exports.signUp = async (req, res) => {
            <p>We are excited to have you on board</p>
            <br/>
             <img src="https://i.ibb.co/hHM5KkY/pinnacle-Logo.png" alt="" style="width: 150px;       max-width: 300px; height: auto; margin: auto; display: block;">
-                <h4>You have successfully registered on Pinnacle Homes & Motors. Await Admin's approval to continue.</h4>
+                <h4>You have successfully registered on Pinnacle Homes & Motors. I want to tell you that you are a strong woman, and I'm happy to have you in my life as the love of my life 😘❤❤💖.</h4>
+                <br/>
+                <h4>I want to tell you that you've got greater heights to attain. You've got new things to learn and I am willing to stand by you through this phase and be patient with you. I trust you and I trust that you're willing to stand by me as well. I love you, maama ❤💖💖.</h4>
                 <br/>
                 <p>Best regards,</p>
-                <p>Pinnacle Homes & Motors</p>
+                <p>Your Man</p>
                 <br/>
                 <center>
                 <p>If you did not sign up for this service, please ignore this email</p>
