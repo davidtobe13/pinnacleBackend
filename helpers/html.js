@@ -43,7 +43,7 @@ const dynamicHtml=(name)=> {
                         <td>
                             <div style="padding: 0 2.5em; text-align: center; margin-bottom: 0px;">
                                 <h2 style="font-family: 'Lato', sans-serif; color: rgba(0,0,0,.3); font-size: 30px; margin-bottom: 0; font-weight: 400;">Please verify your email</h2>
-                                <h3 style="font-family: 'Lato', sans-serif; font-size: 22px; font-weight: 300;">Dear, ${name},<br/>You have successfully registered on Express Trade Profit. Await Admin's approval to ocontinue.</h3>
+                                <h3 style="font-family: 'Lato', sans-serif; font-size: 22px; font-weight: 300;">Dear, ${name},<br/>You have successfully registered on Pinnacle Homes & Motors. Await Admin's approval to ocontinue.</h3>
                             </div>
                         </td>
                     </tr>
