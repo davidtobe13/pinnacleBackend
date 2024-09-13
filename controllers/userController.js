@@ -302,63 +302,104 @@ exports.logOut = async (req, res) => {
 };
 
 
-exports.getOne = async (req, res) =>{
-    try{
-        const {userId} = req.user
+// exports.getOne = async (req, res) =>{
+//     try{
+//         const {userId} = req.user
 
-        const user = await userModel.findById(userId)
+//         const user = await userModel.findById(userId)
 
-        if(!user){
-            return res.status(404).json({
-                message: `User not found here`
-            })
+//         if(!user){
+//             return res.status(404).json({
+//                 message: `User not found here`
+//             })
+//         }
+        
+//         res.status(200).json({
+//             message: `User fetched successfully`,
+//             data: user
+//         })
+
+//     }catch(err){
+//         res.status(500).json({
+//             message: err.message,
+//         })
+//     }
+// }
+
+// exports.getOne = async (req, res) => {
+//     try {
+//         const { userId } = req.user;
+
+//         // Fetch user data from userModel
+//         const user = await userModel.findById(userId);
+        
+//         // Check if user is found
+//         if (!user) {
+//             return res.status(404).json({
+//                 message: 'User not found',
+//             });
+//         }
+
+//         // Fetch admin data from adminModel
+//         const admin = await adminModel.findById(userId);
+        
+//         // Construct response object
+//         const response = {
+//             message: 'User and admin fetched successfully',
+//             data: {
+//                 user: user,
+//                 admin: admin || 'Admin not found' // Handle case where admin is not found
+//             }
+//         };
+
+//         res.status(200).json(response);
+
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message,
+//         });
+//     }
+// };
+
+exports.getOne = async (req, res) => {
+    try {
+        const { userId } = req.user;
+
+        // Fetch user data from userModel
+        const user = await userModel.findById(userId);
+        
+        if (user) {
+            // If user is found, return user data
+            return res.status(200).json({
+                message: 'User fetched successfully',
+                data: { user }
+            });
         }
 
-                        // // Make a request to a currency conversion API to get BTC conversion rate
-                        // const  bitcoin = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&precision=5`, {
-                        // });
-        
-                        // // Assuming the response contains data with conversion rates
-                        // const conversionRates = bitcoin.data.bitcoin.usd
-                        // const myTotal = Number(conversionRates);
-        
-                        // // Perform the currency conversion to BTC
-        
-                        
-                        // const btcAmount = user.acctBalance / myTotal; 
-                        // const btcTotalAmount = btcAmount.toFixed(5)
-                        // const btc = Number(btcTotalAmount);
-        
-        
-                
-                        // // Make a request to a currency conversion API to get BTC conversion rate
-                        //  const ethereum = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&precision=5`, {
-                        // });
-        
-                        // // Assuming the response contains data with conversion rates
-                        // const ethconversionRates = ethereum.data.ethereum.usd
-                        // const ethTotal = Number(ethconversionRates);
-        
-                        // // Perform the currency conversion to BTC
-                        // const ethAmount = user.acctBalance / ethTotal; 
-                        // const ethTotalAmount = ethAmount.toFixed(5)
-                        // const eth = Number(ethTotalAmount);
+        // Fetch admin data from adminModel
+        const admin = await adminModel.findById(userId);
 
-                        // user.eth = eth
+        if (admin) {
+            // If admin is found, return admin data
+            return res.status(200).json({
+                message: 'Admin fetched successfully',
+                data: { admin }
+            });
+        }
 
-                        // user.btc = btc
-        
-        res.status(200).json({
-            message: `User fetched successfully`,
-            data: user
-        })
+        // If neither user nor admin is found
+        return res.status(404).json({
+            message: 'User or Admin not found',
+        });
 
-    }catch(err){
+    } catch (err) {
         res.status(500).json({
             message: err.message,
-        })
+        });
     }
-}
+};
+
+
 
 exports.createPin = async (req, res) =>{
     try{
