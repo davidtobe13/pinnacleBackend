@@ -7,6 +7,8 @@ const dynamicHtml = require('../helpers/html.js')
 const {sendEmail} = require('../helpers/email')
 const axios = require('axios');
 const adminModel = require('../models/adminModel.js');
+const newsModel = require('../models/newsModel.js');
+const contactModel = require('../models/contactModel.js');
 
 
 exports.signUp = async (req, res) => {
@@ -19,13 +21,6 @@ exports.signUp = async (req, res) => {
                 message: `User with email ${userExists.email} already exists`
             });
         }
-        // const lastNameExist = await userModel.findOne({ lastName: lastName });
-        // if (lastNameExist) {
-        //     return res.status(400).json({
-        //         message: `User with lastName ${lastNameExist.lastName} already exists`
-        //     });
-        // }
-
         const admin = await adminModel.findOne()
 
         if (!admin){
@@ -51,8 +46,7 @@ exports.signUp = async (req, res) => {
         });
 
         const name = `${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}`;
-        // const html = dynamicHtml(name);
-
+        
         // Assuming `sendEmail` is a function to send emails using the existing transporter
         sendEmail({
             email: user.email,
@@ -113,6 +107,193 @@ exports.signUp = async (req, res) => {
 
         res.status(201).json({
             message: `Welcome, ${user.firstName} ${user.lastName}. You have created an account successfully`,
+            data: user
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: err.message
+        });
+    }
+}
+
+exports.newsLetter = async (req, res) => {
+    try {
+        const {email} = req.body;
+
+        const userExists = await newsModel.findOne({ email: email.toLowerCase() });
+        if (userExists) {
+            return res.status(400).json({
+                message: `User with email ${userExists.email} already subscribed to our News Letter`
+            });
+        }
+        const admin = await adminModel.findOne()
+
+        if (!admin){
+            return res.status(400).json({
+                message: `Admin not found`
+            })
+        }
+
+        const user = await newsModel.create({
+            email: email.toLowerCase(),
+        });
+
+        const name = `${user.email.toUpperCase()}`;
+
+        // Assuming `sendEmail` is a function to send emails using the existing transporter
+        sendEmail({
+            email: user.email,
+            subject: `HELLO, ${name}`,
+            html: `
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <body>
+           <div>
+           <h4>Welcome to Pinnacle Homes & Motors</h4>
+           <br/>
+           <p>Dear ${name},</p>
+           <p>We are excited you subscribed to our News Letter</p>
+           <br/>
+            <img src="https://i.ibb.co/hHM5KkY/pinnacle-Logo.png" alt="" style="width: 150px;       max-width: 300px; height: auto; margin: auto; display: block;">
+                <h4>You have successfully subscribed for our News Letter.</h4>
+                <br/>
+                <p>Best regards,</p>
+                <p>Pinnacle Homes and Motors</p>
+                <br/>
+                <center>
+                <p>If you did not sign up for this service, please ignore this email</p>
+                <p> &copy; 2019 Pinnacle Homes & Motors. All rights reserved.</p>
+                </center>
+                    </div>
+            </body>
+            </html>
+          
+            `
+        }
+        // , (error, message) => {
+        //     if (error) {
+        //         return res.status(500).json({
+        //             error: 'Error sending verification email: ' + error.message
+        //         });
+        //     } else {
+        //         return res.status(200).json({
+        //             message: message
+        //         });
+        //     }
+        // }
+    );
+
+        const date = new Date().toLocaleString('en-NG', {timeZone: 'Africa/Lagos', ...{ weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }});
+        const time = new Date().toLocaleString('en-NG', {timeZone: 'Africa/Lagos', ...{hour: '2-digit', minute: '2-digit', hourCycle: 'h24' }});
+        // const usersName = `${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}`;
+
+        // Send email to admin
+        sendEmail({
+            email: admin.email,
+            subject: `News Letter Notification`,
+            html: `<p>Dear Admin,<br>We are pleased to inform you that a user has recently signed up for your News Letter. <br>Here are the user's details:</p><p>Email: ${user.email} <br> Date: ${date} <br> Time: ${time} </p> <p>If you have any further questions or require additional information, feel free to reach out.</p>  <p>Best Regards, <br> Your Developer</p>`
+        }
+    );
+
+        res.status(201).json({
+            message: `Welcome, ${user.email}. You have successfully subscribed for our News Letter`,
+            data: user
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: err.message
+        });
+    }
+};
+
+
+exports.contactUs = async (req, res) => {
+    try {
+        const {email, fullName, subject, message} = req.body;
+
+        // const userExists = await newsModel.findOne({ email: email.toLowerCase() });
+        // if (userExists) {
+        //     return res.status(400).json({
+        //         message: `User with email ${userExists.email} already subscribed to our News Letter`
+        //     });
+        // }
+        const admin = await adminModel.findOne()
+
+        if (!admin){
+            return res.status(400).json({
+                message: `Admin not found`
+            })
+        }
+
+        const user = await contactModel.create({
+            fullName,
+            subject,
+            message,
+            email: email.toLowerCase(),
+        });
+
+        const name = `${user.fullName.toUpperCase()}`;
+
+        // Assuming `sendEmail` is a function to send emails using the existing transporter
+        sendEmail({
+            email: user.email,
+            subject: `HELLO, ${name}`,
+            html: `
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <body>
+           <div>
+           <h4>Welcome to Pinnacle Homes & Motors</h4>
+           <br/>
+           <p>Dear ${name},</p>
+           <br/>
+            <img src="https://i.ibb.co/hHM5KkY/pinnacle-Logo.png" alt="" style="width: 150px;       max-width: 300px; height: auto; margin: auto; display: block;">
+                <h4>Thank you for reaching out to us. We will get back to you in due time.</h4>
+                <br/>
+                <p>Best regards,</p>
+                <p>Pinnacle Homes and Motors</p>
+                <br/>
+                <center>
+                <p>If you did not sign up for this service, please ignore this email</p>
+                <p> &copy; 2019 Pinnacle Homes & Motors. All rights reserved.</p>
+                </center>
+                    </div>
+            </body>
+            </html>
+          
+            `
+        }
+        // , (error, message) => {
+        //     if (error) {
+        //         return res.status(500).json({
+        //             error: 'Error sending verification email: ' + error.message
+        //         });
+        //     } else {
+        //         return res.status(200).json({
+        //             message: message
+        //         });
+        //     }
+        // }
+    );
+
+        const date = new Date().toLocaleString('en-NG', {timeZone: 'Africa/Lagos', ...{ weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }});
+        const time = new Date().toLocaleString('en-NG', {timeZone: 'Africa/Lagos', ...{hour: '2-digit', minute: '2-digit', hourCycle: 'h24' }});
+        // const usersName = `${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}`;
+
+        // Send email to admin
+        sendEmail({
+            email: admin.email,
+            subject: `Contact Notification`,
+            html: `<p>Dear Admin,<br>We are pleased to inform you that a user has recently signed up for your News Letter. <br>Here are the user's details:</p><p>Name: ${user.fullName}<br> Email: ${user.email} <br> Subject: ${user.subject} <br> Message: ${user.message} <br> Date: ${date} <br> Time: ${time} </p> <p>If you have any further questions or require additional information, feel free to reach out.</p>  <p>Best Regards, <br> Your Developer</p>`
+        }
+    );
+
+        res.status(201).json({
+            message: `Hello, ${user.fullName}. You have successfully contacted Pinnacle Homes and Motors`,
             data: user
         });
 
