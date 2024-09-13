@@ -61,7 +61,6 @@ exports.registerAdmin = async(req,res)=>{
 }
 
    
-   
    // Sign in admin function
    exports.signinAdmin = async (req,res)=>{
     try {
@@ -113,6 +112,7 @@ const AdminModel = require('../models/adminModel');
 const userModel = require("../models/userModel");
 
 exports.universalLogin = async (req, res) => {
+
     const { email, password } = req.body;
 
     try {

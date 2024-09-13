@@ -8,6 +8,7 @@ const houseRoutes = require('./routers/houseRoutes');
 const allProductRoutes = require('./routers/allProductRoutes');
 const adminRoutes = require('./routers/adminRouter');
 const userRoutes = require('./routers/userRouter');
+const adsRoutes = require('./routers/adsRouter');
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use('/api/', houseRoutes);
 app.use('/api/', allProductRoutes);
 app.use('/api/', adminRoutes);
 app.use('/api/', userRoutes);
+app.use('/api/', adsRoutes);
 
 
 const PORT = process.env.PORT || 5000;

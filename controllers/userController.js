@@ -2,7 +2,7 @@ const userModel = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 require("dotenv").config()
 const jwt = require('jsonwebtoken');
-const cloudinary = require('../utils/cloudinary')
+// const cloudinary = require('../utils/cloudinary')
 const dynamicHtml = require('../helpers/html.js')
 const {sendEmail} = require('../helpers/email')
 const axios = require('axios');
