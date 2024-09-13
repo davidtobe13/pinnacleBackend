@@ -372,7 +372,7 @@ exports.getOne = async (req, res) => {
             // If user is found, return user data
             return res.status(200).json({
                 message: 'User fetched successfully',
-                data: { user }
+                data: user
             });
         }
 
@@ -383,7 +383,7 @@ exports.getOne = async (req, res) => {
             // If admin is found, return admin data
             return res.status(200).json({
                 message: 'Admin fetched successfully',
-                data: { admin }
+                data: admin 
             });
         }
 
